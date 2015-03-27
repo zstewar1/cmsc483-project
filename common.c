@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <tiffio.h>
 
-
 void handle_args(int argc, const char **argv, Array2D *tif1, Array2D *tif2) {
     if(argc != 3) {
         fprintf(stderr, "Usage: %s <tiff1> <tiff2>\n", argv[0]);
@@ -53,7 +52,7 @@ void handle_args(int argc, const char **argv, Array2D *tif1, Array2D *tif2) {
 /* Allocate a 2d array as a contiguous block of memory, with an outer array pointing into
    it at each row -- the entire inner array can be accessed as the index of the first
    element */
-void alloc_2d_array(size_t rows, size_t columns, size_t element_size, Array2D *array) {
+void alloc_2d_array(int64_t rows, int64_t columns, size_t element_size, Array2D *array) {
     array->rows = rows;
     array->cols = columns;
     array->elem_size = element_size;
@@ -62,7 +61,7 @@ void alloc_2d_array(size_t rows, size_t columns, size_t element_size, Array2D *a
     array->array = (void**)calloc(array->rows, sizeof(void**));
     void *inner_array = calloc(array->rows, array->cols * array->elem_size);
 
-    for(int row = 0; row < array->rows; row++) {
+    for(int64_t row = 0; row < array->rows; row++) {
         array->array[row] = inner_array + (row * array->cols * array->elem_size);
     }
 }
@@ -74,8 +73,8 @@ void free_2d_array(Array2D *array) {
     free(array->array);
 }
 
-void slice_2d_array(Array2D *array_in, size_t start_row, size_t end_row, size_t start_col,
-                    size_t end_col, Array2D *array_out) {
+void slice_2d_array(Array2D *array_in, int64_t start_row, int64_t end_row, int64_t start_col,
+                    int64_t end_col, Array2D *array_out) {
     array_out->rows = end_row - start_row;
     array_out->cols = end_col - start_col;
     array_out->elem_size = array_in->elem_size;
@@ -83,7 +82,7 @@ void slice_2d_array(Array2D *array_in, size_t start_row, size_t end_row, size_t 
 
     array_out->array = (void**)calloc(array_out->rows, sizeof(void**));
 
-    for(int row = 0; row < array_out->rows; row++) {
+    for(int64_t row = 0; row < array_out->rows; row++) {
         array_out->array[row] = array_in->array[row + start_row] + (start_col * array_in->elem_size);
     }
 }
