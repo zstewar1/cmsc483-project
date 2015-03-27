@@ -6,8 +6,7 @@
 #include <tiffio.h>
 
 
-void handle_args(int argc, const char **argv, uint16_t ***tif1, uint16_t ***tif2, uint32_t *tif1_height,
-                 uint32_t *tif1_width, uint32_t *tif2_height, uint32_t *tif2_width) {
+void handle_args(int argc, const char **argv, Array2D *tif1, Array2D *tif2) {
     if(argc != 3) {
         fprintf(stderr, "Usage: %s <tiff1> <tiff2>\n", argv[0]);
         fprintf(stderr, "Requires two arguments, which are the names of the tiff files to align.\n");
@@ -27,13 +26,10 @@ void handle_args(int argc, const char **argv, uint16_t ***tif1, uint16_t ***tif2
     TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &imagelength);
     scanlinesize = TIFFScanlineSize(tif);
 
-    *tif1_height = imagelength;
-    *tif1_width = scanlinesize / 2;
+    alloc_2d_array(imagelength, scanlinesize / 2, sizeof(uint16_t), tif1);
 
-    *tif1 = (uint16_t**)alloc_2d_array(*tif1_height, *tif1_width, sizeof(uint16_t));
-
-    for(uint32 row = 0; row < *tif1_height; row++) {
-        TIFFReadScanline(tif, (*tif1)[row], row, 0);
+    for(uint32 row = 0; row < tif1->rows; row++) {
+        TIFFReadScanline(tif, tif1->array[row], row, 0);
     }
     TIFFClose(tif);
 
@@ -46,13 +42,10 @@ void handle_args(int argc, const char **argv, uint16_t ***tif1, uint16_t ***tif2
     TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &imagelength);
     scanlinesize = TIFFScanlineSize(tif);
 
-    *tif2_height = imagelength;
-    *tif2_width = scanlinesize / 2;
+    alloc_2d_array(imagelength, scanlinesize / 2, sizeof(uint16_t), tif2);
 
-    *tif2 = (uint16_t**)alloc_2d_array(*tif2_height, *tif2_width, sizeof(uint16_t));
-
-    for(uint32 row = 0; row < *tif2_height; row++) {
-        TIFFReadScanline(tif, (*tif2)[row], row, 0);
+    for(uint32 row = 0; row < tif2->rows; row++) {
+        TIFFReadScanline(tif, tif2->array[row], row, 0);
     }
     TIFFClose(tif);
 }
@@ -60,19 +53,37 @@ void handle_args(int argc, const char **argv, uint16_t ***tif1, uint16_t ***tif2
 /* Allocate a 2d array as a contiguous block of memory, with an outer array pointing into
    it at each row -- the entire inner array can be accessed as the index of the first
    element */
-void **alloc_2d_array(size_t rows, size_t columns, size_t element_size) {
-    void **outer_array = (void**)calloc(rows, sizeof(void**));
-    void *inner_array = calloc(rows, columns * element_size);
+void alloc_2d_array(size_t rows, size_t columns, size_t element_size, Array2D *array) {
+    array->rows = rows;
+    array->cols = columns;
+    array->elem_size = element_size;
+    array->_is_slice = false;
+    
+    array->array = (void**)calloc(array->rows, sizeof(void**));
+    void *inner_array = calloc(array->rows, array->cols * array->elem_size);
 
-    for(int row = 0; row < rows; row++) {
-        outer_array[row] = inner_array + (row * columns * element_size);
+    for(int row = 0; row < array->rows; row++) {
+        array->array[row] = inner_array + (row * array->cols * array->elem_size);
     }
-
-    return outer_array;
 }
 
 /* Free an array created with alloc_2d_array */
-void free_2d_array(void **array) {
-    free(*array);
-    free(array);
+void free_2d_array(Array2D *array) {
+    if(!array->_is_slice)
+        free(*array->array);
+    free(array->array);
+}
+
+void slice_2d_array(Array2D *array_in, size_t start_row, size_t end_row, size_t start_col,
+                    size_t end_col, Array2D *array_out) {
+    array_out->rows = end_row - start_row;
+    array_out->cols = end_col - start_col;
+    array_out->elem_size = array_in->elem_size;
+    array_out->_is_slice = true;
+
+    array_out->array = (void**)calloc(array_out->rows, sizeof(void**));
+
+    for(int row = 0; row < array_out->rows; row++) {
+        array_out->array[row] = array_in->array[row + start_row] + (start_col * array_in->elem_size);
+    }
 }
