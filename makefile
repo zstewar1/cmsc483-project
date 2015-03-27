@@ -1,6 +1,7 @@
 CC := gcc
 PARALLELCC := mpicc
 
+FLAGS := -Wall
 LINKFLAGS := $(FLAGS) -ltiff
 COMPILEFLAGS := $(FLAGS) -std=c11
 
@@ -20,6 +21,10 @@ obj:
 
 bin:
 	mkdir bin
+
+.PHONY: test
+test: bin/exhaustive
+	bin/exhaustive img1.tif img2.tif
 
 clean:
 	rm bin/* obj/*
