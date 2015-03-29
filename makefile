@@ -2,7 +2,7 @@ CC := gcc
 PARALLELCC := mpicc
 
 FLAGS := -Wall
-LINKFLAGS := $(FLAGS) -ltiff -lm
+LINKFLAGS := $(FLAGS) -Ltiff-3.9.7/libtiff/.libs/ -ltiff -lm
 COMPILEFLAGS := $(FLAGS) -std=c99
 
 all: bin/exhaustive
