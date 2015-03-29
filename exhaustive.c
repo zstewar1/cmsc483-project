@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "common.h"
+#include "ncc.h"
 
 int main(int argc, const char *argv[]) {
     Array2D tif1, tif2;
@@ -12,27 +13,9 @@ int main(int argc, const char *argv[]) {
     fprintf(stderr, "Img1:%ldx%ld\n", tif1.cols, tif1.rows);
     fprintf(stderr, "Img2:%ldx%ld\n", tif2.cols, tif2.rows);
 
-    double inverse_count = 1.0/(tif1.rows * tif1.cols);
-    double tif1_average = 0;
-
-    // Take the whole array operate over it -- note: this will not work with a sliced array
-    uint16_t *array = (uint16_t*)(*tif1.array);
-    for(size_t i = 0; i < tif1.rows * tif1.cols; i++) {
-        tif1_average += array[i] * inverse_count;
-    }
-
-    fprintf(stderr, "Img1 average: %f\n", tif1_average);
-
-    inverse_count = 1.0/(tif2.rows * tif2.cols);
-    double tif2_average = 0;
-
-    // Take the whole array operate over it -- note: this will not work with a sliced array
-    array = (uint16_t*)(*tif2.array);
-    for(size_t i = 0; i < tif2.rows * tif2.cols; i++) {
-        tif2_average += array[i] * inverse_count;
-    }
-
-    fprintf(stderr, "Img2 average: %f\n", tif2_average);
+    long xtrans = 0;
+    long ytrans = 0;
+    double min_ncc = 1.0/0.0;
 
     for(long row_start = 1 - tif2.rows; row_start < tif1.rows; row_start++) {
         for(long col_start = 1 - tif2.cols; col_start < tif1.cols; col_start++) {
@@ -51,6 +34,13 @@ int main(int argc, const char *argv[]) {
             slice_2d_array(&tif1, i1rs, i1re, i1cs, i1ce, &i1slice);
             slice_2d_array(&tif2, i2rs, i2re, i2cs, i2ce, &i2slice);
 
+            double result = compute_ncc(&i1slice, &i2slice);
+
+            if(result < min_ncc) {
+                xtrans = row_start;
+                ytrans = col_start;
+            }
+
             free_2d_array(&i1slice);
             free_2d_array(&i2slice);
         }
@@ -58,6 +48,8 @@ int main(int argc, const char *argv[]) {
 
     free_2d_array(&tif1);
     free_2d_array(&tif2);
+
+    fprintf(stdout, "XTranslation: %ld\nYTranslation %ld\n", xtrans, ytrans);
 
     fprintf(stderr, "Done\n");
     

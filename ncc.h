@@ -1,3 +1,4 @@
+#pragma once
 //
 //  ncc.h
 //  
@@ -6,11 +7,7 @@
 //
 //
 
-#ifndef ____ncc__
-#define ____ncc__
+struct Array2D;
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-
-double compute_ncc(uint16_t*, uint16_t*, size_t);
+/* Takes two 2D arrays of uint16_t */
+double compute_ncc(struct Array2D *a_in, struct Array2D *b_in);
