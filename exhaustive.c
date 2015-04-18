@@ -17,6 +17,8 @@ int main(int argc, const char *argv[]) {
     long ytrans = 0;
     double min_ncc = 1.0/0.0;
 
+    fprintf(stderr, "Initial ncc: %f\n", min_ncc);
+
     for(long row_start = 1 - tif2.rows; row_start < tif1.rows; row_start++) {
         for(long col_start = 1 - tif2.cols; col_start < tif1.cols; col_start++) {
             long i1rs = clamp64(row_start, 0, tif1.rows);
@@ -39,6 +41,7 @@ int main(int argc, const char *argv[]) {
             if(result < min_ncc) {
                 xtrans = row_start;
                 ytrans = col_start;
+                min_ncc = result;
             }
 
             free_2d_array(&i1slice);
