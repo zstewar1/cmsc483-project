@@ -2,8 +2,8 @@ CC := gcc
 PARALLELCC := mpicc
 
 FLAGS := -Wall
-LINKFLAGS := $(FLAGS) -Ltiff-3.9.7/libtiff/.libs/ -ltiff -lm
-COMPILEFLAGS := $(FLAGS) -std=c99
+LINKFLAGS := $(FLAGS) -Llibs -ltiff -lm
+COMPILEFLAGS := $(FLAGS)  -std=c99
 
 all: bin/exhaustive
 
@@ -27,7 +27,7 @@ bin:
 
 .PHONY: test
 test: bin/exhaustive
-	bin/exhaustive img1.tif img2.tif
+	LD_LIBRARY_PATH=libs bin/exhaustive img1.tif img2.tif
 
 clean:
 	rm bin/* obj/*
