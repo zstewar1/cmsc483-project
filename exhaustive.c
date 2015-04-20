@@ -38,6 +38,8 @@ int main(int argc, const char *argv[]) {
 
             double result = compute_ncc(&i1slice, &i2slice);
 
+            fprintf(stderr, "Result %f -- %ld %ld %ld %ld\n", result, i1slice.cols, i1slice.rows, row_start, col_start);
+            
             if(result < min_ncc) {
                 xtrans = row_start;
                 ytrans = col_start;

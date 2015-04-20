@@ -2,8 +2,8 @@ CC := gcc
 PARALLELCC := mpicc
 
 FLAGS := -Wall
-LINKFLAGS := $(FLAGS) -Llibs -ltiff -lm
-COMPILEFLAGS := $(FLAGS)  -std=c99
+LINKFLAGS := $(FLAGS) -Ltiff-3.9.7/libtiff/.libs -ltiff -lm
+COMPILEFLAGS := $(FLAGS) -Itiff-3.9.7/libtiff -std=c99
 
 all: bin/exhaustive bin/pciam
 
