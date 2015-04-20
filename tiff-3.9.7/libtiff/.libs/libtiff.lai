@@ -5,19 +5,19 @@
 # It is necessary for linking the library.
 
 # The name that we can dlopen(3).
-dlname='libtiff.so.3'
+dlname='libtiff.3.dylib'
 
 # Names of this library.
-library_names='libtiff.so.3.9.7 libtiff.so.3 libtiff.so'
+library_names='libtiff.3.dylib libtiff.dylib'
 
 # The name of the static archive.
 old_library='libtiff.a'
 
 # Linker flags that can not go in dependency_libs.
-inherited_linker_flags=''
+inherited_linker_flags=' '
 
 # Libraries that this one depends upon.
-dependency_libs=' -lz -lm -lc'
+dependency_libs=' -lz -lc'
 
 # Names of additional weak libraries provided by this library
 weak_library_names=''

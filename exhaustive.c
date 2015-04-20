@@ -15,9 +15,10 @@ int main(int argc, const char *argv[]) {
 
     long xtrans = 0;
     long ytrans = 0;
-    double min_ncc = 1.0/0.0;
+    double ncc = -2.0;
 
     for(long row_start = 1 - tif2.rows; row_start < tif1.rows; row_start++) {
+        printf("%d out of %d\n",row_start,tif1.rows);
         for(long col_start = 1 - tif2.cols; col_start < tif1.cols; col_start++) {
             long i1rs = clamp64(row_start, 0, tif1.rows);
             long i1re = clamp64(row_start + tif2.rows, 0, tif1.rows);
@@ -35,13 +36,11 @@ int main(int argc, const char *argv[]) {
             slice_2d_array(&tif2, i2rs, i2re, i2cs, i2ce, &i2slice);
 
             double result = compute_ncc(&i1slice, &i2slice);
-
-            fprintf(stderr, "Result %f -- %ld %ld %ld %ld\n", result, i1slice.cols, i1slice.rows, row_start, col_start);
             
-            if(result < min_ncc) {
+            if(result > ncc) {
                 xtrans = row_start;
                 ytrans = col_start;
-                min_ncc = result;
+                ncc = result;
             }
 
             free_2d_array(&i1slice);
@@ -51,8 +50,11 @@ int main(int argc, const char *argv[]) {
 
     free_2d_array(&tif1);
     free_2d_array(&tif2);
+    
 
-    fprintf(stdout, "XTranslation: %ld\nYTranslation %ld\n", xtrans, ytrans);
+
+    printf("(x,y,ncc) = (%d, %d, %g)\n",xtrans,ytrans,ncc);
+
 
     fprintf(stderr, "Done\n");
     
