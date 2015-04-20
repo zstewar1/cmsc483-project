@@ -32,8 +32,8 @@ bin:
 	mkdir bin
 
 .PHONY: test
-test: bin/pciam
-	LD_LIBRARY_PATH=libs bin/pciam img1.tif img2.tif
+test: bin/exhaustive
+	LD_LIBRARY_PATH=tiff-3.9.7/libtiff/.libs bin/exhaustive img1.tif img2.tif
 
 clean:
 	rm bin/* obj/*
