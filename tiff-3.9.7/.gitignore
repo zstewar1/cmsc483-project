@@ -1,3 +1,5 @@
+!build
+
 # Created by https://www.gitignore.io
 
 ### CMake ###
@@ -10,8 +12,6 @@ install_manifest.txt
 
 ### Autotools ###
 # http://www.gnu.org/software/automake
-
-Makefile.in
 
 # http://www.gnu.org/software/autoconf
 
