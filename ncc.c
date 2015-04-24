@@ -17,6 +17,11 @@
 double compute_ncc(Array2D *a_in, Array2D *b_in) {
     int numel = a_in->rows * a_in->cols;
 
+    if(numel == 1) {
+        // Disregard 1x1 overlaps -- they would have an NCC of 1, but they are not counted here.
+        return -2.0;
+    }
+
     double *a = malloc(numel*sizeof(double));
     double *b = malloc(numel*sizeof(double));
     
