@@ -7,6 +7,8 @@ COMPILEFLAGS := $(FLAGS) -Itiff-3.9.7/libtiff -std=gnu99
 
 all: bin/exhaustive bin/pciam bin/saserial
 
+sa: bin/saserial
+
 bin/exhaustive: obj/exhaustive.o obj/common.o obj/ncc.o | bin
 	$(CC) $(LINKFLAGS) -o $@ $^
 
@@ -39,7 +41,7 @@ bin:
 
 .PHONY: test
 test: bin/exhaustive
-	LD_LIBRARY_PATH=tiff-3.9.7/libtiff/.libs bin/exhaustive img1.tif img2.tif
+	LD_LIBRARY_PATH=tiff-3.9.7/libtiff/.libs bin/exhaustive I1_sm.tif I2_sm.tif
 
 clean:
 	rm bin/* obj/*

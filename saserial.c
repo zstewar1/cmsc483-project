@@ -33,7 +33,7 @@ int main(int argc, const char *argv[]) {
     double bncc = ncc;
 
     while(temperature > 0.00001) {
-        fprintf(stderr, "Temperature: %f\n", temperature);
+        //fprintf(stderr, "Temperature: %f\n", temperature);
 
         temperature *= alpha;
         ++iter_count;

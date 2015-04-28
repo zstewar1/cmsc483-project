@@ -1,5 +1,8 @@
 function [x,y,c] = pciam(I1,I2)
 
+I1 = double(I1);
+I2 = double(I2);
+
 f1 = fft2(I1); % FFT of the first image
 f2 = fft2(I2); % FFT of second image
 

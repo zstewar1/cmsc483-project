@@ -5,6 +5,8 @@
 #include "common.h"
 #include "ncc.h"
 
+const long delta = 2;
+
 int main(int argc, const char *argv[]) {
     Array2D tif1, tif2;
 
@@ -17,11 +19,11 @@ int main(int argc, const char *argv[]) {
     long ytrans = 0;
     double ncc = -2.0;
 
-    for(long row_start = 1 - tif2.rows; row_start < tif1.rows; row_start++) {
+    for(long row_start = -(tif2.rows-delta); row_start < (tif1.rows-delta); row_start++) {
 
         fprintf(stderr, "%ld out of %ld\n", row_start, tif1.rows);
         
-        for(long col_start = 1 - tif2.cols; col_start < tif1.cols; col_start++) {
+        for(long col_start = -(tif2.cols-delta); col_start < (tif1.cols-delta); col_start++) {
             long i1rs = clamp64(row_start, 0, tif1.rows);
             long i1re = clamp64(row_start + tif2.rows, 0, tif1.rows);
             long i1cs = clamp64(col_start, 0, tif1.cols);
