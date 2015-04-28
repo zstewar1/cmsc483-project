@@ -1,6 +1,6 @@
 //
 //  ncc.c
-//  
+//
 //
 //  Created by Mike Majurski on 3/28/15.
 //
@@ -14,6 +14,30 @@
 #include "common.h"
 #include "ncc.h"
 
+double compute_cost(Array2D *i1, Array2D *i2, long x, long y) {
+    long i1rs = clamp64(x, 0, i1->rows);
+    long i1re = clamp64(x + i2->rows, 0, i1->rows);
+    long i1cs = clamp64(y, 0, i1->cols);
+    long i1ce = clamp64(y + i2->cols, 0, i1->cols);
+
+    long i2rs = clamp64(-x, 0, i2->rows);
+    long i2re = clamp64(-x + i1->rows, 0, i2->rows);
+    long i2cs = clamp64(-y, 0, i2->cols);
+    long i2ce = clamp64(-y + i1->cols, 0, i2->cols);
+
+    Array2D i1slice, i2slice;
+
+    slice_2d_array(i1, i1rs, i1re, i1cs, i1ce, &i1slice);
+    slice_2d_array(i2, i2rs, i2re, i2cs, i2ce, &i2slice);
+
+    double ncc = compute_ncc(&i1slice, &i2slice);
+
+    free_2d_array(&i1slice);
+    free_2d_array(&i2slice);
+
+    return ncc;
+}
+
 double compute_ncc(Array2D *a_in, Array2D *b_in) {
     int numel = a_in->rows * a_in->cols;
 
@@ -24,7 +48,7 @@ double compute_ncc(Array2D *a_in, Array2D *b_in) {
 
     double *a = malloc(numel*sizeof(double));
     double *b = malloc(numel*sizeof(double));
-    
+
     // up convert to double
     for(int row = 0; row < a_in->rows; row++) {
         for(int col = 0; col < a_in->cols; col++) {
@@ -46,12 +70,12 @@ double compute_ncc(Array2D *a_in, Array2D *b_in) {
     // numerator
     double n = 0;
     double d1 = 0, d2 = 0;
-    
+
     // normalize a w.r.t mean, b w.r.t mean and compute numerator
     for(int i = 0; i < numel; i++) {
         // normalize a w.r.t mean
         a[i] = a[i] - a_mean;
-        
+
         // normalize b w.r.t mean
         b[i] = b[i] - b_mean;
 

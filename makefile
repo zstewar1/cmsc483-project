@@ -3,9 +3,9 @@ PARALLELCC := mpicc
 
 FLAGS := -Wall
 LINKFLAGS := $(FLAGS) -Ltiff-3.9.7/libtiff/.libs -ltiff -lm
-COMPILEFLAGS := $(FLAGS) -Itiff-3.9.7/libtiff -std=c99
+COMPILEFLAGS := $(FLAGS) -Itiff-3.9.7/libtiff -std=gnu99
 
-all: bin/exhaustive bin/pciam
+all: bin/exhaustive bin/pciam bin/saserial
 
 bin/exhaustive: obj/exhaustive.o obj/common.o obj/ncc.o | bin
 	$(CC) $(LINKFLAGS) -o $@ $^
@@ -23,6 +23,12 @@ bin/pciam: obj/pciam.o obj/common.o | bin
 	$(CC) $(LINKFLAGS) -lfftw3 -o $@ $^
 
 obj/pciam.o: pciam.c common.h | obj
+	$(CC) $(COMPILEFLAGS) -c -o $@ $<
+
+bin/saserial: obj/saserial.o obj/common.o obj/ncc.o | bin
+	$(CC) $(LINKFLAGS) -o $@ $^
+
+obj/saserial.o: saserial.c ncc.h common.h
 	$(CC) $(COMPILEFLAGS) -c -o $@ $<
 
 obj:
