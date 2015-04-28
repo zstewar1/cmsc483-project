@@ -9,7 +9,7 @@ int main(int argc, const char *argv[]) {
     Array2D tif1, tif2;
 
     handle_args(argc, argv, &tif1, &tif2);
-    
+
     fprintf(stderr, "Img1:%ldx%ld\n", tif1.cols, tif1.rows);
     fprintf(stderr, "Img2:%ldx%ld\n", tif2.cols, tif2.rows);
 
@@ -18,7 +18,9 @@ int main(int argc, const char *argv[]) {
     double ncc = -2.0;
 
     for(long row_start = 1 - tif2.rows; row_start < tif1.rows; row_start++) {
-        printf("%d out of %d\n",row_start,tif1.rows);
+
+        fprintf(stderr, "%ld out of %ld\n", row_start, tif1.rows);
+        
         for(long col_start = 1 - tif2.cols; col_start < tif1.cols; col_start++) {
             long i1rs = clamp64(row_start, 0, tif1.rows);
             long i1re = clamp64(row_start + tif2.rows, 0, tif1.rows);
@@ -36,7 +38,7 @@ int main(int argc, const char *argv[]) {
             slice_2d_array(&tif2, i2rs, i2re, i2cs, i2ce, &i2slice);
 
             double result = compute_ncc(&i1slice, &i2slice);
-            
+
             if(result > ncc) {
                 xtrans = row_start;
                 ytrans = col_start;
@@ -50,13 +52,13 @@ int main(int argc, const char *argv[]) {
 
     free_2d_array(&tif1);
     free_2d_array(&tif2);
-    
 
 
-    printf("(x,y,ncc) = (%d, %d, %g)\n",xtrans,ytrans,ncc);
+
+    printf("(x,y,ncc) = (%ld, %ld, %g)\n",xtrans,ytrans,ncc);
 
 
     fprintf(stderr, "Done\n");
-    
+
     return 0;
 }
