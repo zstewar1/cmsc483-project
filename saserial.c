@@ -39,7 +39,7 @@ int main(int argc, const char *argv[]) {
         ++iter_count;
 
         if(iter_count % 15 == 0) {
-            printf("%ld Iterations, ncc: %f, temperature: %f\n", iter_count, bncc, temperature);
+            fprintf(stdout, "%ld Iterations, ncc: %f, temperature: %f\n", iter_count, bncc, temperature);
         }
 
         if(perform_hc_step(&tif1, &tif2, &x, &y, &ncc)) {
@@ -85,9 +85,9 @@ int main(int argc, const char *argv[]) {
         }
     }
 
-    printf("Best: (x, y, c) = (%ld, %ld, %g)\n", bx, by, bncc);
+    fprintf(stderr, "(x,y,ncc) = (%ld, %ld, %g)\n",bx,by,bncc);
 
-    printf("%ld Iterations\n", iter_count);
+    fprintf(stdout, "%ld Iterations\n", iter_count);
 
     return 0;
 }

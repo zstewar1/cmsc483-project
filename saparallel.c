@@ -51,7 +51,7 @@ int main(int argc, const char *argv[]) {
 
         if(iter_count % reduce_iter_count == 0) {
             if(rank == 0) {
-                printf("%ld Iterations, ncc: %f, temperature: %f\n", iter_count, bncc, temperature);
+                fprintf(stdout, "%ld Iterations, ncc: %f, temperature: %f\n", iter_count, bncc, temperature);
             }
             reduce(&bncc, &bx, &by, rank);
         }
@@ -102,9 +102,9 @@ int main(int argc, const char *argv[]) {
     reduce(&bncc, &bx, &by, rank);
 
     if(rank == 0) {
-        printf("Best: (x, y, c) = (%ld, %ld, %g)\n", bx, by, bncc);
+        fprintf(stderr, "(x,y,ncc) = (%ld, %ld, %g)\n",bx,by,bncc);
 
-        printf("%ld Iterations\n", iter_count);
+        fprintf(stdout, "%ld Iterations\n", iter_count);
     }
 
     MPI_Finalize();

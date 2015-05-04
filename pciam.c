@@ -11,8 +11,8 @@ int main(int argc, const char *argv[]) {
 
     handle_args(argc, argv, &tif1, &tif2);
 
-    fprintf(stderr, "Img1:%ldx%ld\n", tif1.cols, tif1.rows);
-    fprintf(stderr, "Img2:%ldx%ld\n", tif2.cols, tif2.rows);
+    fprintf(stdout, "Img1:%ldx%ld\n", tif1.cols, tif1.rows);
+    fprintf(stdout, "Img2:%ldx%ld\n", tif2.cols, tif2.rows);
 
     if(tif1.cols != tif2.cols || tif1.rows != tif2.rows) {
         fprintf(stderr, "Images must be the same size\n");
@@ -47,7 +47,7 @@ int main(int argc, const char *argv[]) {
     long cmax = -1;
     double max = -1.0/0.0;
 
-    fprintf(stderr, "Initial max: %f\n", max);
+    fprintf(stdout, "Initial max: %f\n", max);
     for(long r = 0; r < tif1.rows; r++){
         for(long c = 0; c < tif1.cols; c++) {
             if(creal(image1[r * tif1.cols + c]) > max){
@@ -58,8 +58,7 @@ int main(int argc, const char *argv[]) {
         }
     }
 
+    fprintf(stderr, "(x,y,ncc) = (%ld, %ld, %g)\n",rmax,cmax,0.0/0.0);
 
-    fprintf(stdout, "XTranslation: %ld\nYTranslation: %ld\n", rmax, cmax);
-
-    fprintf(stderr, "Done\n");
+    fprintf(stdout, "Done\n");
 }

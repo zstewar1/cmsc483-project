@@ -12,8 +12,8 @@ int main(int argc, const char *argv[]) {
 
     handle_args(argc, argv, &tif1, &tif2);
 
-    fprintf(stderr, "Img1:%ldx%ld\n", tif1.cols, tif1.rows);
-    fprintf(stderr, "Img2:%ldx%ld\n", tif2.cols, tif2.rows);
+    fprintf(stdout, "Img1:%ldx%ld\n", tif1.cols, tif1.rows);
+    fprintf(stdout, "Img2:%ldx%ld\n", tif2.cols, tif2.rows);
 
     long xtrans = 0;
     long ytrans = 0;
@@ -21,8 +21,8 @@ int main(int argc, const char *argv[]) {
 
     for(long row_start = -(tif2.rows-delta); row_start < (tif1.rows-delta); row_start++) {
 
-        fprintf(stderr, "%ld out of %ld\n", row_start, tif1.rows);
-        
+        fprintf(stdout, "%ld out of %ld\n", row_start, tif1.rows);
+
         for(long col_start = -(tif2.cols-delta); col_start < (tif1.cols-delta); col_start++) {
             long i1rs = clamp64(row_start, 0, tif1.rows);
             long i1re = clamp64(row_start + tif2.rows, 0, tif1.rows);
@@ -57,10 +57,10 @@ int main(int argc, const char *argv[]) {
 
 
 
-    printf("(x,y,ncc) = (%ld, %ld, %g)\n",xtrans,ytrans,ncc);
+    fprintf(stderr, "(x,y,ncc) = (%ld, %ld, %g)\n",xtrans,ytrans,ncc);
 
 
-    fprintf(stderr, "Done\n");
+    fprintf(stdout, "Done\n");
 
     return 0;
 }
