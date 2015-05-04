@@ -4,21 +4,32 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include <mpi.h>
+
 #include "common.h"
 #include "ncc.h"
 
 const double alpha = 0.999;
 
+const long reduce_iter_count = 15;
+
 int perform_hc_step(Array2D *i1, Array2D *i2, long* x, long *y, double *ncc);
 void generate_neighbor(long rows, long cols, long *newx, long *newy);
 void bound(long *x, long *y, Array2D *i);
 
+void reduce(double *bncc, long *bx, long *by, int rank);
+
 int main(int argc, const char *argv[]) {
+    int rank, commsz;
+    MPI_Init(&argc, (char***)&argv);
+    MPI_Comm_size(MPI_COMM_WORLD, &commsz);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
     Array2D tif1, tif2;
 
     handle_args(argc, argv, &tif1, &tif2);
 
-    srand48(time(NULL));
+    srand48(time(NULL) * rank);
 
     // Create initial valid translation
     long x = clamp64((long)(drand48() * tif1.rows), 1-tif1.rows, tif1.rows-1);
@@ -38,8 +49,11 @@ int main(int argc, const char *argv[]) {
         temperature *= alpha;
         ++iter_count;
 
-        if(iter_count % 15 == 0) {
-            printf("%ld Iterations, ncc: %f, temperature: %f\n", iter_count, bncc, temperature);
+        if(iter_count % reduce_iter_count == 0) {
+            if(rank == 0) {
+                printf("%ld Iterations, ncc: %f, temperature: %f\n", iter_count, bncc, temperature);
+            }
+            reduce(&bncc, &bx, &by, rank);
         }
 
         if(perform_hc_step(&tif1, &tif2, &x, &y, &ncc)) {
@@ -85,9 +99,15 @@ int main(int argc, const char *argv[]) {
         }
     }
 
-    printf("Best: (x, y, c) = (%ld, %ld, %g)\n", bx, by, bncc);
+    reduce(&bncc, &bx, &by, rank);
 
-    printf("%ld Iterations\n", iter_count);
+    if(rank == 0) {
+        printf("Best: (x, y, c) = (%ld, %ld, %g)\n", bx, by, bncc);
+
+        printf("%ld Iterations\n", iter_count);
+    }
+
+    MPI_Finalize();
 
     return 0;
 }
@@ -150,4 +170,20 @@ void generate_neighbor(long rows, long cols, long *newx, long *newy) {
 void bound(long *x, long *y, Array2D *i) {
     *x = clamp64(*x, 1-i->rows, i->rows-1);
     *y = clamp64(*y, 1-i->cols, i->cols-1);
+}
+
+void reduce(double *bncc, long *bx, long *by, int rank) {
+    struct {double ncc; int rank;} reduce_data;
+    reduce_data.ncc = *bncc;
+    reduce_data.rank = rank;
+
+    MPI_Allreduce(&reduce_data, &reduce_data, 1, MPI_DOUBLE_INT, MPI_MAXLOC, MPI_COMM_WORLD);
+
+    long locxy[2] = {*bx, *by};
+
+    MPI_Bcast(locxy, 2, MPI_LONG, reduce_data.rank, MPI_COMM_WORLD);
+
+    *bncc = reduce_data.ncc;
+    *bx = locxy[0];
+    *by = locxy[1];
 }
