@@ -6,7 +6,7 @@
 #include <tiffio.h>
 
 void handle_args(int argc, const char **argv, Array2D *tif1, Array2D *tif2) {
-    if(argc != 3) {
+    if(argc < 3) {
         fprintf(stderr, "Usage: %s <tiff1> <tiff2>\n", argv[0]);
         fprintf(stderr, "Requires two arguments, which are the names of the tiff files to align.\n");
         fprintf(stderr, "Output is translation to apply to the second image to align it with the first.\n");
@@ -18,10 +18,10 @@ void handle_args(int argc, const char **argv, Array2D *tif1, Array2D *tif2) {
         fprintf(stderr, "First argument file (%s) is not a valid tiff file.\n", argv[1]);
         exit(2);
     }
-    
+
     uint32 imagelength;
     uint32 scanlinesize;
-    
+
     TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &imagelength);
     scanlinesize = TIFFScanlineSize(tif);
 
@@ -57,7 +57,7 @@ void alloc_2d_array(int64_t rows, int64_t columns, size_t element_size, Array2D 
     array->cols = columns;
     array->elem_size = element_size;
     array->_is_slice = false;
-    
+
     array->array = (void**)calloc(array->rows, sizeof(void**));
     void *inner_array = calloc(array->rows, array->cols * array->elem_size);
 

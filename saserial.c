@@ -7,8 +7,6 @@
 #include "common.h"
 #include "ncc.h"
 
-const double alpha = 0.999;
-
 int perform_hc_step(Array2D *i1, Array2D *i2, long* x, long *y, double *ncc);
 void generate_neighbor(long rows, long cols, long *newx, long *newy);
 void bound(long *x, long *y, Array2D *i);
@@ -17,6 +15,15 @@ int main(int argc, const char *argv[]) {
     Array2D tif1, tif2;
 
     handle_args(argc, argv, &tif1, &tif2);
+
+    double alpha;
+
+    if(argc < 4) {
+        alpha = 0.999;
+    }
+    else {
+        alpha = atof(argv[3]);
+    }
 
     srand48(time(NULL));
 

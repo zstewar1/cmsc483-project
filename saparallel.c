@@ -9,8 +9,6 @@
 #include "common.h"
 #include "ncc.h"
 
-const double alpha = 0.999;
-
 const long reduce_iter_count = 15;
 
 int perform_hc_step(Array2D *i1, Array2D *i2, long* x, long *y, double *ncc);
@@ -28,6 +26,15 @@ int main(int argc, const char *argv[]) {
     Array2D tif1, tif2;
 
     handle_args(argc, argv, &tif1, &tif2);
+
+    double alpha;
+
+    if(argc < 4) {
+        alpha = 0.999;
+    }
+    else {
+        alpha = atof(argv[3]);
+    }
 
     srand48(time(NULL) * rank);
 
