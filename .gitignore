@@ -2,6 +2,11 @@
 
 # Created by https://www.gitignore.io
 
+# libtiff
+tiff-3.9.7
+# fftw
+fftw-3.3.4
+
 ### C ###
 # Object files
 *.o
