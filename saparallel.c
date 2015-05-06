@@ -44,13 +44,13 @@ int main(int argc, const char *argv[]) {
 
     double ncc = compute_cost(&tif1, &tif2, x, y);
 
-    double temperature = 1000.0;
+    double temperature = 1.0;
     long iter_count = 0;
 
     long bx = x, by = y;
     double bncc = ncc;
 
-    while(temperature > 0.00001) {
+    while(temperature > 0.01) {
         //fprintf(stderr, "Temperature: %f\n", temperature);
 
         temperature *= alpha;
@@ -90,7 +90,7 @@ int main(int argc, const char *argv[]) {
             }
         }
         else {
-            double energy = exp(fabs(ncc - newncc) / temperature);
+            double energy = exp(-fabs(ncc - newncc) / temperature);
 
             if(energy > drand48()) {
                 ncc = newncc;

@@ -7,6 +7,7 @@
 #include "common.h"
 #include "ncc.h"
 
+
 int perform_hc_step(Array2D *i1, Array2D *i2, long* x, long *y, double *ncc);
 void generate_neighbor(long rows, long cols, long *newx, long *newy);
 void bound(long *x, long *y, Array2D *i);
@@ -17,6 +18,7 @@ int main(int argc, const char *argv[]) {
     handle_args(argc, argv, &tif1, &tif2);
 
     double alpha;
+    double temperature = 1.0;
 
     if(argc < 4) {
         alpha = 0.999;
@@ -33,19 +35,20 @@ int main(int argc, const char *argv[]) {
 
     double ncc = compute_cost(&tif1, &tif2, x, y);
 
-    double temperature = 1000.0;
+
     long iter_count = 0;
 
     long bx = x, by = y;
     double bncc = ncc;
 
-    while(temperature > 0.00001) {
+    // keep an order of mag above float eps
+        while(temperature > 0.01) {
         //fprintf(stderr, "Temperature: %f\n", temperature);
 
         temperature *= alpha;
         ++iter_count;
 
-        if(iter_count % 15 == 0) {
+        if(iter_count % 100 == 0) {
             fprintf(stdout, "%ld Iterations, ncc: %f, temperature: %f\n", iter_count, bncc, temperature);
         }
 
@@ -76,7 +79,7 @@ int main(int argc, const char *argv[]) {
             }
         }
         else {
-            double energy = exp(fabs(ncc - newncc) / temperature);
+            double energy = exp(-fabs(ncc - newncc) / temperature);
 
             if(energy > drand48()) {
                 ncc = newncc;
