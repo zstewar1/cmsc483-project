@@ -57,10 +57,11 @@ int main(int argc, const char *argv[]) {
         ++iter_count;
 
         if(iter_count % reduce_iter_count == 0) {
-            if(rank == 0) {
-                fprintf(stdout, "%ld Iterations, ncc: %f, temperature: %f\n", iter_count, bncc, temperature);
-            }
             reduce(&bncc, &bx, &by, rank);
+        }
+
+        if(rank == 0 && iter_count % 100 == 0) {
+            fprintf(stdout, "%ld Iterations, ncc: %f, temperature: %f\n", iter_count, bncc, temperature);
         }
 
         if(perform_hc_step(&tif1, &tif2, &x, &y, &ncc)) {
