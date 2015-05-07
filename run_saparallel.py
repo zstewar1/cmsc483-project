@@ -9,11 +9,11 @@ import re
 import subprocess
 import sys
 
-command = ('/usr/bin/time', '-f', '%e', 'mpirun', '-np', 'bin/saparallel',)
+command = ('/usr/bin/time', '-f', '%e', 'mpirun', '-npernode', '6', '-np', 'bin/saparallel',)
 
 ImgPair = collections.namedtuple('ImgPair', ('name', 'i1', 'i2'))
 
-result_parse = re.compile(r'^\(x,y,ncc\) = \((.*), (.*), (.*)\)$')
+result_parse = re.compile(r'^\(x,y,ncc,iters\) = \((.*), (.*), (.*), (.*)\)$')
 
 image_pairs = [
     ImgPair('small', 'img1_sm.tif', 'img2_sm.tif'),
@@ -26,18 +26,17 @@ def main():
 
     results = {}
 
-    if os.path.exists('results_pciam.json'):
-        with open('results_pciam.json', 'r') as file:
+    if os.path.exists('results_saparallel.json'):
+        with open('results_saparallel.json', 'r') as file:
             results = json.load(file)
     try:
-        for nodes in range(1,11):
+        for nodes in range(1,21):
             nodestr = str(nodes) + ' nodes'
-            if nodestr in results:
-                continue
             results.setdefault(nodestr, {})
             for image_pair in image_pairs:
                 results[nodestr].setdefault(image_pair.name, {'results':[], 'runtimes':[]})
-                for repeat in range(20):
+                for repeat in range(len(results[nodestr][image_pair.name]['runtimes']), 20):
+                    print('Repeat', repeat)
                     cmd = command[:-1] + (str(nodes),) + command[-1:] + image_pair[-2:]
                     print(cmd)
                     proc = subprocess.Popen(cmd, stderr=subprocess.PIPE)
@@ -45,12 +44,12 @@ def main():
                     out, time = err.splitlines()
                     out = result_parse.match(out)
                     time = float(time)
-                    print(out.group(1), out.group(2), out.group(3))
-                    out = (int(out.group(1)), int(out.group(2)), float(out.group(3)))
+                    print(out.group(1), out.group(2), out.group(3), out.group(4))
+                    out = (int(out.group(1)), int(out.group(2)), float(out.group(3)), int(out.group(4)))
                     results[nodestr][image_pair.name]['results'].append(out)
                     results[nodestr][image_pair.name]['runtimes'].append(time)
-                with open('results_saserial.json', 'w') as file:
-                    json.dump(results, file)
+                    with open('results_saparallel.json', 'w') as file:
+                        json.dump(results, file)
     finally:
         DEVNULL.close()
         if proc is not None and proc.poll is None:

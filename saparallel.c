@@ -15,7 +15,7 @@ int perform_hc_step(Array2D *i1, Array2D *i2, long* x, long *y, double *ncc);
 void generate_neighbor(long rows, long cols, long *newx, long *newy);
 void bound(long *x, long *y, Array2D *i);
 
-void reduce(double *bncc, long *bx, long *by, int rank);
+int reduce(double *bncc, long *bx, long *by, int rank);
 
 int main(int argc, const char *argv[]) {
     int rank, commsz;
@@ -36,7 +36,9 @@ int main(int argc, const char *argv[]) {
         alpha = atof(argv[3]);
     }
 
-    srand48(time(NULL) * rank);
+    fprintf(stdout, "%d\n", time(NULL));
+
+    srand48(time(NULL) * (rank + 1));
 
     // Create initial valid translation
     long x = clamp64((long)(drand48() * tif1.rows), 1-tif1.rows, tif1.rows-1);
@@ -46,6 +48,7 @@ int main(int argc, const char *argv[]) {
 
     double temperature = 1.0;
     long iter_count = 0;
+    long iters = 0;
 
     long bx = x, by = y;
     double bncc = ncc;
@@ -57,7 +60,9 @@ int main(int argc, const char *argv[]) {
         ++iter_count;
 
         if(iter_count % reduce_iter_count == 0) {
-            reduce(&bncc, &bx, &by, rank);
+            if(reduce(&bncc, &bx, &by, rank)) {
+                iters = iter_count;
+	    }
         }
 
         if(rank == 0 && iter_count % 100 == 0) {
@@ -70,6 +75,7 @@ int main(int argc, const char *argv[]) {
                 bncc = ncc;
                 bx = x;
                 by = y;
+		iters = iter_count;
             }
             continue;
         }
@@ -88,6 +94,7 @@ int main(int argc, const char *argv[]) {
                 bncc = ncc;
                 bx = x;
                 by = y;
+		iters = iter_count;
             }
         }
         else {
@@ -102,15 +109,18 @@ int main(int argc, const char *argv[]) {
                     bncc = ncc;
                     bx = x;
                     by = y;
+		    iters = iter_count;
                 }
             }
         }
     }
 
-    reduce(&bncc, &bx, &by, rank);
+    if(reduce(&bncc, &bx, &by, rank)){
+        iters = iter_count;
+    }
 
     if(rank == 0) {
-        fprintf(stderr, "(x,y,ncc) = (%ld, %ld, %g)\n",bx,by,bncc);
+        fprintf(stderr, "(x,y,ncc,iters) = (%ld, %ld, %g, %ld)\n",bx,by,bncc,iters);
 
         fprintf(stdout, "%ld Iterations\n", iter_count);
     }
@@ -180,7 +190,7 @@ void bound(long *x, long *y, Array2D *i) {
     *y = clamp64(*y, 1-i->cols, i->cols-1);
 }
 
-void reduce(double *bncc, long *bx, long *by, int rank) {
+int reduce(double *bncc, long *bx, long *by, int rank) {
     struct {double ncc; int rank;} reduce_data;
     reduce_data.ncc = *bncc;
     reduce_data.rank = rank;
@@ -191,7 +201,11 @@ void reduce(double *bncc, long *bx, long *by, int rank) {
 
     MPI_Bcast(locxy, 2, MPI_LONG, reduce_data.rank, MPI_COMM_WORLD);
 
+    int rs = reduce_data.ncc > *bncc;
+
     *bncc = reduce_data.ncc;
     *bx = locxy[0];
     *by = locxy[1];
+
+    return rs;
 }

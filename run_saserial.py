@@ -13,7 +13,7 @@ command = ('/usr/bin/time', '-f', '%e', 'bin/saserial',)
 
 ImgPair = collections.namedtuple('ImgPair', ('name', 'i1', 'i2'))
 
-result_parse = re.compile(r'^\(x,y,ncc\) = \((.*), (.*), (.*)\)$')
+result_parse = re.compile(r'^\(x,y,ncc,iters\) = \((.*), (.*), (.*), (.*)\)$')
 
 image_pairs = [
     ImgPair('small', 'img1_sm.tif', 'img2_sm.tif'),
@@ -26,12 +26,13 @@ def main():
 
     results = {}
 
-    if os.path.exists('results_pciam.json'):
-        with open('results_pciam.json', 'r') as file:
+    if os.path.exists('results_saserial.json'):
+        with open('results_saserial.json', 'r') as file:
             results = json.load(file)
     try:
         for image_pair in image_pairs:
             for repeat in range(len(results.setdefault(image_pair.name, {'results':[], 'runtimes':[]})['runtimes']), 20):
+                print('Repeat', repeat)
                 cmd = command + image_pair[-2:]
                 print(cmd)
                 proc = subprocess.Popen(cmd, stderr=subprocess.PIPE)
@@ -39,8 +40,8 @@ def main():
                 out, time = err.splitlines()
                 out = result_parse.match(out)
                 time = float(time)
-                print(out.group(1), out.group(2), out.group(3))
-                out = (int(out.group(1)), int(out.group(2)), float(out.group(3)))
+                print(out.group(1), out.group(2), out.group(3), out.group(4))
+                out = (int(out.group(1)), int(out.group(2)), float(out.group(3)), int(out.group(4)))
                 results[image_pair.name]['results'].append(out)
                 results[image_pair.name]['runtimes'].append(time)
                 with open('results_saserial.json', 'w') as file:

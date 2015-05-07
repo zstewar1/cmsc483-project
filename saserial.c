@@ -38,6 +38,8 @@ int main(int argc, const char *argv[]) {
 
     long iter_count = 0;
 
+    long iters_taken = 0;
+
     long bx = x, by = y;
     double bncc = ncc;
 
@@ -58,6 +60,7 @@ int main(int argc, const char *argv[]) {
                 bncc = ncc;
                 bx = x;
                 by = y;
+		iters_taken = iter_count;
             }
             continue;
         }
@@ -76,6 +79,7 @@ int main(int argc, const char *argv[]) {
                 bncc = ncc;
                 bx = x;
                 by = y;
+		iters_taken = iter_count;
             }
         }
         else {
@@ -90,12 +94,13 @@ int main(int argc, const char *argv[]) {
                     bncc = ncc;
                     bx = x;
                     by = y;
+		    iters_taken = iter_count;
                 }
             }
         }
     }
 
-    fprintf(stderr, "(x,y,ncc) = (%ld, %ld, %g)\n",bx,by,bncc);
+	fprintf(stderr, "(x,y,ncc,iters) = (%ld, %ld, %g, %ld)\n",bx,by,bncc,iters_taken);
 
     fprintf(stdout, "%ld Iterations\n", iter_count);
 
