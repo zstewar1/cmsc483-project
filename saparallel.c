@@ -36,7 +36,14 @@ int main(int argc, const char *argv[]) {
         alpha = atof(argv[3]);
     }
 
-    fprintf(stdout, "%d\n", time(NULL));
+    double stopmin;
+
+    if(argc < 5) {
+        stopmin = 2.0;
+    }
+    else {
+        stopmin = atof(argv[4]);
+    }
 
     srand48(time(NULL) * (rank + 1));
 
@@ -53,7 +60,9 @@ int main(int argc, const char *argv[]) {
     long bx = x, by = y;
     double bncc = ncc;
 
-    while(temperature > 0.01) {
+    int reduce_stop_count = 0;
+
+    while(temperature > 0.01 && reduce_stop_count < 4) {
         //fprintf(stderr, "Temperature: %f\n", temperature);
 
         temperature *= alpha;
@@ -62,7 +71,9 @@ int main(int argc, const char *argv[]) {
         if(iter_count % reduce_iter_count == 0) {
             if(reduce(&bncc, &bx, &by, rank)) {
                 iters = iter_count;
-	    }
+            }
+            if(bncc > stopmin)
+                ++reduce_stop_count;
         }
 
         if(rank == 0 && iter_count % 100 == 0) {
@@ -75,7 +86,7 @@ int main(int argc, const char *argv[]) {
                 bncc = ncc;
                 bx = x;
                 by = y;
-		iters = iter_count;
+                iters = iter_count;
             }
             continue;
         }
@@ -94,7 +105,7 @@ int main(int argc, const char *argv[]) {
                 bncc = ncc;
                 bx = x;
                 by = y;
-		iters = iter_count;
+                iters = iter_count;
             }
         }
         else {
@@ -109,7 +120,7 @@ int main(int argc, const char *argv[]) {
                     bncc = ncc;
                     bx = x;
                     by = y;
-		    iters = iter_count;
+                    iters = iter_count;
                 }
             }
         }

@@ -27,6 +27,15 @@ int main(int argc, const char *argv[]) {
         alpha = atof(argv[3]);
     }
 
+    double stopmin;
+
+    if(argc < 5) {
+        stopmin = 2.0;
+    }
+    else {
+        stopmin = atof(argv[4]);
+    }
+
     srand48(time(NULL));
 
     // Create initial valid translation
@@ -40,15 +49,19 @@ int main(int argc, const char *argv[]) {
 
     long iters_taken = 0;
 
+    long stop_wait_iter = 0;
+
     long bx = x, by = y;
     double bncc = ncc;
 
     // keep an order of mag above float eps
-        while(temperature > 0.01) {
+        while(temperature > 0.01 && stop_wait_iter < 60) {
         //fprintf(stderr, "Temperature: %f\n", temperature);
 
         temperature *= alpha;
         ++iter_count;
+        if(bncc > stopmin)
+            ++stop_wait_iter;
 
         if(iter_count % 100 == 0) {
             fprintf(stdout, "%ld Iterations, ncc: %f, temperature: %f\n", iter_count, bncc, temperature);
@@ -60,7 +73,7 @@ int main(int argc, const char *argv[]) {
                 bncc = ncc;
                 bx = x;
                 by = y;
-		iters_taken = iter_count;
+                iters_taken = iter_count;
             }
             continue;
         }
@@ -79,7 +92,7 @@ int main(int argc, const char *argv[]) {
                 bncc = ncc;
                 bx = x;
                 by = y;
-		iters_taken = iter_count;
+                iters_taken = iter_count;
             }
         }
         else {
@@ -94,13 +107,13 @@ int main(int argc, const char *argv[]) {
                     bncc = ncc;
                     bx = x;
                     by = y;
-		    iters_taken = iter_count;
+                    iters_taken = iter_count;
                 }
             }
         }
     }
 
-	fprintf(stderr, "(x,y,ncc,iters) = (%ld, %ld, %g, %ld)\n",bx,by,bncc,iters_taken);
+    fprintf(stderr, "(x,y,ncc,iters) = (%ld, %ld, %g, %ld)\n",bx,by,bncc,iters_taken);
 
     fprintf(stdout, "%ld Iterations\n", iter_count);
 
