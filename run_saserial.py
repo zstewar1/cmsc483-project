@@ -33,7 +33,7 @@ def main():
         for image_pair in image_pairs:
             for repeat in range(len(results.setdefault(image_pair.name, {'results':[], 'runtimes':[]})['runtimes']), 20):
                 print('Repeat', repeat)
-                cmd = command + image_pair[-2:]
+                cmd = command + image_pair[-2:] + ('0.999', '0.99')
                 print(cmd)
                 proc = subprocess.Popen(cmd, stderr=subprocess.PIPE)
                 err = proc.communicate()[1].decode('ascii')

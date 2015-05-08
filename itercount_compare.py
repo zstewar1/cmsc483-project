@@ -11,24 +11,98 @@ def main():
     with open('results_saparallel.json') as file:
         saparallel = json.load(file)
 
-    sas_ic = {sz: [res[-1] for res in saserial[sz]['results']] for sz in saserial}
-    sap2_ic = {sz: [res[-1] for res in saparallel['2 nodes'][sz]['results']] for sz in saparallel['2 nodes']}
-
     sizes = ['small', 'medium', 'large']
 
-    plt.boxplot(list(itertools.chain.from_iterable(zip((sas_ic[sz] for sz in sizes), (sap2_ic[sz] for sz in sizes)))))
+    sa_ic = ([{sz: [res[-1] for res in saserial[sz]['results']] for sz in sizes}] +
+        [{sz: [res[-1] for res in saparallel[str(nc) + ' nodes'][sz]['results']] for sz in sizes} for nc in range(2, 21)])
 
-    xticks = [s[1] + ' ' + s[0] for s in itertools.product(sizes, ['Simulated Annealing (serial)', 'Simulated Annealing (2 nodes)'])]
+    xticks = ['Serial'] + [str(n) + ' Nodes' for n in range(2, 21)]
+    for sz in sizes:
+        plt.boxplot([i[sz] for i in sa_ic])
 
-    xtn = plt.setp(plt.axes(), xticklabels=xticks)
-    plt.setp(xtn, rotation=45)
+        xtn = plt.setp(plt.axes(), xticklabels=xticks)
+        plt.setp(xtn, rotation=90)
 
-    plt.subplots_adjust(bottom=0.25)
+        plt.subplots_adjust(bottom=0.2)
 
-    plt.title('Number of Iterations to find Solution')
-    plt.ylabel('Iterations')
+        plt.title('Number of Iterations for ' + sz.capitalize() + ' Images')
+        plt.ylabel('Iterations')
+        plt.xlabel('Number of Nodes')
+        #plt.show()
+        plt.savefig('res_iter_box_{}.png'.format(sz), bbox_inches='tight')
+        plt.clf()
 
-    plt.show()
+    runtime = {sz: numpy.mean([i[sz] for i in sa_ic], 1) for sz in sizes}
+
+    for sz in sizes:
+        plt.plot(list(range(1, len(sa_ic) + 1)), runtime[sz])
+
+    plt.xticks(numpy.arange(0, 22, 1))
+    xtn = plt.setp(plt.axes(), xticklabels=[''] + xticks)
+    plt.setp(xtn, rotation=90)
+
+    plt.xlabel('Number of Nodes')
+    plt.ylabel('Runtime (Number of Iterations)')
+
+    plt.subplots_adjust(bottom=0.2)
+
+    plt.legend([sz.capitalize() for sz in sizes])
+    plt.title('Runtime by Number of Iterations')
+
+    plt.grid()
+
+    #plt.show()
+    plt.savefig('runtime_iterations.png', bbox_inches='tight')
+    plt.clf()
+
+    speedup = {sz: numpy.repeat(runtime[sz][0], len(runtime[sz])) / runtime[sz] for sz in sizes}
+
+    for sz in sizes:
+        plt.plot(list(range(1, len(sa_ic) + 1)), speedup[sz])
+
+    plt.xticks(numpy.arange(0, 22, 1))
+    xtn = plt.setp(plt.axes(), xticklabels=[''] + xticks)
+    plt.setp(xtn, rotation=90)
+
+    plt.yticks(numpy.arange(0, 24, 1))
+    plt.ylim(0, 23)
+
+    plt.xlabel('Number of Nodes')
+    plt.ylabel('Speedup')
+
+    plt.subplots_adjust(bottom=0.2)
+
+    plt.legend([sz.capitalize() for sz in sizes], loc='upper left')
+    plt.title('Speedup by Number of Iterations')
+
+    plt.grid()
+
+    #plt.show()
+    plt.savefig('speedup_iterations.png', bbox_inches='tight')
+    plt.clf()
+
+    efficiency = {sz: speedup[sz] / (numpy.arange(len(speedup[sz])) + 1) for sz in sizes}
+
+    for sz in sizes:
+        plt.plot(list(range(1, len(sa_ic) + 1)), efficiency[sz])
+
+    plt.xticks(numpy.arange(0, 22, 1))
+    xtn = plt.setp(plt.axes(), xticklabels=[''] + xticks)
+    plt.setp(xtn, rotation=90)
+
+    plt.xlabel('Number of Nodes')
+    plt.ylabel('Efficiency')
+
+    plt.subplots_adjust(bottom=0.2)
+
+    plt.legend([sz.capitalize() for sz in sizes], loc='upper left')
+    plt.title('Efficiency by Number of Iterations')
+
+    plt.grid()
+
+    #plt.show()
+    plt.savefig('efficiency_iterations.png', bbox_inches='tight')
+    plt.clf()
 
 if __name__ == '__main__':
     main()

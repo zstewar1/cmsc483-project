@@ -37,7 +37,7 @@ def main():
                 results[nodestr].setdefault(image_pair.name, {'results':[], 'runtimes':[]})
                 for repeat in range(len(results[nodestr][image_pair.name]['runtimes']), 20):
                     print('Repeat', repeat)
-                    cmd = command[:-1] + (str(nodes),) + command[-1:] + image_pair[-2:]
+                    cmd = command[:-1] + (str(nodes),) + command[-1:] + image_pair[-2:] + ('0.999', '0.99')
                     print(cmd)
                     proc = subprocess.Popen(cmd, stderr=subprocess.PIPE)
                     err = proc.communicate()[1].decode('ascii')
