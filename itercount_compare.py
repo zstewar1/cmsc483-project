@@ -33,9 +33,13 @@ def main():
         plt.clf()
 
     runtime = {sz: numpy.mean([i[sz] for i in sa_ic], 1) for sz in sizes}
+    std = {sz: numpy.std([i[sz] for i in sa_ic], 1) for sz in sizes}
+
+    x = numpy.arange(len(sa_ic)) + 1
 
     for sz in sizes:
-        plt.plot(list(range(1, len(sa_ic) + 1)), runtime[sz])
+        # plt.plot(x, runtime[sz])
+        plt.errorbar(x, runtime[sz], std[sz])
 
     plt.xticks(numpy.arange(0, 22, 1))
     xtn = plt.setp(plt.axes(), xticklabels=[''] + xticks)
@@ -58,7 +62,7 @@ def main():
     speedup = {sz: numpy.repeat(runtime[sz][0], len(runtime[sz])) / runtime[sz] for sz in sizes}
 
     for sz in sizes:
-        plt.plot(list(range(1, len(sa_ic) + 1)), speedup[sz])
+        plt.plot(x, speedup[sz])
 
     plt.xticks(numpy.arange(0, 22, 1))
     xtn = plt.setp(plt.axes(), xticklabels=[''] + xticks)
@@ -84,7 +88,7 @@ def main():
     efficiency = {sz: speedup[sz] / (numpy.arange(len(speedup[sz])) + 1) for sz in sizes}
 
     for sz in sizes:
-        plt.plot(list(range(1, len(sa_ic) + 1)), efficiency[sz])
+        plt.plot(x, efficiency[sz])
 
     plt.xticks(numpy.arange(0, 22, 1))
     xtn = plt.setp(plt.axes(), xticklabels=[''] + xticks)

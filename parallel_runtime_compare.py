@@ -33,13 +33,21 @@ def main():
         plt.clf()
 
     runtime = {sz: numpy.mean([i[sz] for i in sa_ic], 1) for sz in sizes}
+    std = {sz: numpy.std([i[sz] for i in sa_ic], 1) for sz in sizes}
+
+    x = numpy.arange(len(sa_ic)) + 1
 
     for sz in sizes:
-        plt.plot(list(range(1, len(sa_ic) + 1)), runtime[sz])
+        #plt.plot(x, runtime[sz])
+        errlow = numpy.array(std[sz])
+        errlow[errlow >= runtime[sz]] = runtime[sz][errlow >= runtime[sz]] * .999
+        plt.errorbar(x, runtime[sz], yerr=[errlow,std[sz]])
 
     plt.xticks(numpy.arange(0, 22, 1))
     xtn = plt.setp(plt.axes(), xticklabels=[''] + xticks)
     plt.setp(xtn, rotation=90)
+
+    plt.ylim(1e-1, 1e3)
 
     plt.xlabel('Number of Nodes')
     plt.ylabel('Runtime (s)')
@@ -48,8 +56,7 @@ def main():
 
     plt.legend([sz.capitalize() for sz in sizes])
     plt.title('Parallel Runtime')
-
-    plt.grid()
+    plt.yscale('log')
 
     # plt.show()
     plt.savefig('runtime_parallel.png', bbox_inches='tight')
@@ -58,7 +65,7 @@ def main():
     speedup = {sz: numpy.repeat(runtime[sz][0], len(runtime[sz])) / runtime[sz] for sz in sizes}
 
     for sz in sizes:
-        plt.plot(list(range(1, len(sa_ic) + 1)), speedup[sz])
+        plt.plot(x, speedup[sz])
 
     plt.xticks(numpy.arange(0, 22, 1))
     xtn = plt.setp(plt.axes(), xticklabels=[''] + xticks)
@@ -81,7 +88,7 @@ def main():
     efficiency = {sz: speedup[sz] / (numpy.arange(len(speedup[sz])) + 1) for sz in sizes}
 
     for sz in sizes:
-        plt.plot(list(range(1, len(sa_ic) + 1)), efficiency[sz])
+        plt.plot(x, efficiency[sz])
 
     plt.xticks(numpy.arange(0, 22, 1))
     xtn = plt.setp(plt.axes(), xticklabels=[''] + xticks)
