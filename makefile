@@ -7,6 +7,8 @@ COMPILEFLAGS := $(FLAGS) -Itiff-3.9.7/libtiff -Ifftw-3.3.4/include -std=gnu99
 
 all: bin/exhaustive bin/pciam bin/saserial bin/saparallel
 
+
+
 bin/exhaustive: obj/exhaustive.o obj/common.o obj/ncc.o | bin
 	$(CC) $(LINKFLAGS) -o $@ $^
 
@@ -36,6 +38,13 @@ bin/saparallel: obj/saparallel.o obj/common.o obj/ncc.o | bin
 
 obj/saparallel.o: saparallel.c ncc.h common.h | obj
 	$(PARALLELCC) $(COMPILEFLAGS) -c -o $@ $<
+
+bin/mcparallel: obj/mcparallel.o obj/common.o obj/ncc.o | bin
+	$(PARALLELCC) $(LINKFLAGS) -o $@ $^
+
+obj/mcparallel.o: mcparallel.c ncc.h common.h | obj
+	$(PARALLELCC) $(COMPILEFLAGS) -c -o $@ $<
+
 
 obj:
 	mkdir obj
