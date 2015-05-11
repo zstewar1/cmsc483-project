@@ -5,7 +5,7 @@ FLAGS := -Wall
 LINKFLAGS := $(FLAGS) -Ltiff-3.9.7/libtiff/.libs -ltiff -lm -Lfftw-3.3.4/lib
 COMPILEFLAGS := $(FLAGS) -Itiff-3.9.7/libtiff -Ifftw-3.3.4/include -std=gnu99
 
-all: bin/exhaustive bin/pciam bin/saserial bin/saparallel
+all: bin/exhaustive bin/pciam bin/saserial bin/saparallel bin/saparallel_vary_iter bin/mcparallel
 
 
 
@@ -45,6 +45,11 @@ bin/mcparallel: obj/mcparallel.o obj/common.o obj/ncc.o | bin
 obj/mcparallel.o: mcparallel.c ncc.h common.h | obj
 	$(PARALLELCC) $(COMPILEFLAGS) -c -o $@ $<
 
+bin/saparallel_vary_iter: obj/saparallel_vary_iter.o obj/common.o obj/ncc.o | bin
+	$(PARALLELCC) $(LINKFLAGS) -o $@ $^
+
+obj/saparallel_vary_iter.o: saparallel_vary_iter.c ncc.h common.h | obj
+	$(PARALLELCC) $(COMPILEFLAGS) -c -o $@ $<
 
 obj:
 	mkdir obj

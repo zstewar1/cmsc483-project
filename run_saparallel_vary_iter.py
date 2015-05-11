@@ -14,8 +14,8 @@ command = ('/usr/bin/time', '-f', '%e', 'mpirun', '-npernode', '6', 'bin/saparal
 ImgPair = collections.namedtuple('ImgPair', ('name', 'i1', 'i2'))
 
 image_pairs = [
-#    ImgPair('small', 'img1_sm.tif', 'img2_sm.tif'),
-#    ImgPair('medium', 'img1_med.tif', 'img2_med.tif'),
+    ImgPair('small', 'img1_sm.tif', 'img2_sm.tif'),
+    ImgPair('medium', 'img1_med.tif', 'img2_med.tif'),
     ImgPair('large', 'img1.tif', 'img2.tif')]
 
 def main():
